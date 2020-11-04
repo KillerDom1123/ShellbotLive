@@ -9,7 +9,7 @@ A Shellshot Live aim 'assist' made with Python and OpenCV
 - [x] Know position of the enemies
 - [x] Get distance between the player and enemies
 - [x] Calculate distance required
-- [ ] Draw the text of the distance onto the screen
+- [x] Draw the text of the distance onto the screen
 - [ ] Have a configuration process so it works on other resolutions, etc
 
 **For Conisderation:**

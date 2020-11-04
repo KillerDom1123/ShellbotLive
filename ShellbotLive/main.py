@@ -35,12 +35,22 @@ class ShellbotLive():
             if len(enemy_positions) == 0:
                 logging.warning('No enemies found')
 
-            cv2.imshow('Red', screen)
 
             if player_position and enemy_positions:
-                distance = float(f'0.{int(abs(player_position[0][0] - enemy_positions[0][0]) / 2)}')
-                angle = (90-math.asin(distance/1.345632)/2/math.pi*180)
+                for enemy in enemy_positions:
+                    enemy_x = enemy[0]
 
+                    if enemy[0] > player_position[0][0]:
+                        enemy_x = -enemy[0]
+
+                    distance = float(f'0.{int(abs(player_position[0][0] - enemy_x - 15) / 2)}')
+                    print(distance)
+                    angle = (90 - math.asin(distance/1.345632) / 2 / math.pi * 180)
+
+                    self.add_angle_text(screen, enemy, angle)
+
+
+            cv2.imshow('Red', screen)
 
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
@@ -104,6 +114,13 @@ class ShellbotLive():
         tolerance_factor = 5000
         origin = cv2.boundingRect(contour)
         return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
+
+    def add_angle_text(self, screen, position, angle):
+        x, y = position
+
+        cv2.putText(screen,f'Angle:{int(angle)}',(x+50, y+50),
+                            cv2.FONT_HERSHEY_SIMPLEX, 0.5,(255,255,255),1,cv2.LINE_AA)
+
 
 
 if __name__ == '__main__':
