@@ -4,6 +4,8 @@ import cv2
 import numpy as np
 import logging
 
+import math
+
 
 logging.basicConfig(level=logging.DEBUG)
 
@@ -24,15 +26,21 @@ class ShellbotLive():
             player_filtered_screen = self.threshold(player_filtered_screen, 80, 85)
             player_filtered_screen, player_position = self.get_position(screen, player_filtered_screen, 'Player', colour=(0, 255, 0))
 
-            enemy_filtered_screen = self.colour_filter(screen, self.lower_red, self.upper_red)
-            enemy_filtered_screen = self.threshold(enemy_filtered_screen, 25, 50)
-            enemy_filtered_screen, enemy_positions = self.get_position(screen, enemy_filtered_screen, 'Enemy')
-            cv2.imshow('Red', enemy_filtered_screen)
-
-
-
             if len(player_position) == 0:
                 logging.warning('Player not found')
+
+            enemy_filtered_screen = self.colour_filter(screen, self.lower_red, self.upper_red)
+            enemy_filtered_screen = self.threshold(enemy_filtered_screen, 25, 50)
+            screen, enemy_positions = self.get_position(screen, enemy_filtered_screen, 'Enemy')
+            if len(enemy_positions) == 0:
+                logging.warning('No enemies found')
+
+            cv2.imshow('Red', screen)
+
+            if player_position and enemy_positions:
+                distance = float(f'0.{int(abs(player_position[0][0] - enemy_positions[0][0]) / 2)}')
+                angle = (90-math.asin(distance/1.345632)/2/math.pi*180)
+
 
             if cv2.waitKey(25) & 0xFF == ord('q'):
                 cv2.destroyAllWindows()
@@ -93,7 +101,7 @@ class ShellbotLive():
             return base_screen, []
 
     def get_contour_precedence(self, contour, cols):
-        tolerance_factor = 500
+        tolerance_factor = 5000
         origin = cv2.boundingRect(contour)
         return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
 

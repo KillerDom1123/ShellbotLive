@@ -2,3 +2,4 @@
 - Added ability to screengrab
 - Added ability to find and know player's locations
 - Added ability to find and know enemy positions
+- Added ability to calculate the angle needed
