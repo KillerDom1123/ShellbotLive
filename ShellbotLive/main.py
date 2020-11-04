@@ -44,7 +44,6 @@ class ShellbotLive():
                         enemy_x = -enemy[0]
 
                     distance = float(f'0.{int(abs(player_position[0][0] - enemy_x - 15) / 2)}')
-                    print(distance)
                     angle = (90 - math.asin(distance/1.345632) / 2 / math.pi * 180)
 
                     self.add_angle_text(screen, enemy, angle)
