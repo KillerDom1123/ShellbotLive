@@ -1,3 +1,4 @@
+from logging import log
 from PIL import ImageGrab
 import cv2
 import numpy as np
@@ -22,6 +23,8 @@ class ShellbotLive():
             player_filtered_screen = self.colour_filter(screen, self.lower_green, self.upper_green)
             player_filtered_screen = self.threshold(player_filtered_screen)
             player_filtered_screen, player_position = self.label_position(screen, player_filtered_screen)
+
+            cv2.imshow('Green', player_filtered_screen)
 
             if len(player_position) == 0:
                 logging.warning('Player not found')
@@ -49,21 +52,29 @@ class ShellbotLive():
         return thresh_screen
 
     def label_position(self, base_screen, thresh_screen):
-        contours,_ = cv2.findContours(thresh_screen, 1, 1)
         try:
-            rect = cv2.minAreaRect(contours[0])
-            (x,y),(w,h), a = rect
+            contours,_ = cv2.findContours(thresh_screen, 1, 1)
 
-            box = cv2.boxPoints(rect)
-            box = np.int0(box)
+            sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
+            positions = []
 
-            drawn_base_screen = cv2.drawContours(base_screen,[box],0,(0,0,255),2)
+            for index, contour in enumerate(sorted_contours):
 
-            cv2.putText(drawn_base_screen,'Player',(int(x+15),int(y-15)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2,cv2.LINE_AA)
+                rect = cv2.minAreaRect(contours[0])
+                (x,y),(w,h), a = rect
 
-            return drawn_base_screen, [(x,y),(w,h)]
+                positions.append([(x,y),(w,h)])
 
+                box = cv2.boxPoints(rect)
+                box = np.int0(box)
+
+                base_screen = cv2.drawContours(base_screen,[box],0,(0,0,255),2)
+
+                cv2.putText(base_screen,f'Player {index}',(int(x+15),int(y-15)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2,cv2.LINE_AA)
+
+            return base_screen, positions
         except IndexError:
+            logging.error('No contours found')
             return base_screen, []
 
 
