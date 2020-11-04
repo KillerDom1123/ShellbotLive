@@ -22,9 +22,7 @@ class ShellbotLive():
 
             player_filtered_screen = self.colour_filter(screen, self.lower_green, self.upper_green)
             player_filtered_screen = self.threshold(player_filtered_screen)
-            player_filtered_screen, player_position = self.label_position(screen, player_filtered_screen)
-
-            cv2.imshow('Green', player_filtered_screen)
+            player_filtered_screen, player_position = self.get_position(screen, player_filtered_screen)
 
             if len(player_position) == 0:
                 logging.warning('Player not found')
@@ -51,31 +49,46 @@ class ShellbotLive():
 
         return thresh_screen
 
-    def label_position(self, base_screen, thresh_screen):
+    def get_position(self, base_screen, thresh_screen):
         try:
             contours,_ = cv2.findContours(thresh_screen, 1, 1)
 
-            sorted_contours = sorted(contours, key=cv2.contourArea, reverse=True)
+            contours.sort(key=lambda x:self.get_contour_precedence(x, base_screen.shape[1]))
+
             positions = []
+            rects = []
+            limit_area = 500
 
-            for index, contour in enumerate(sorted_contours):
+            for cnt in contours:
+                if cv2.contourArea(cnt) >= limit_area:
+                    x, y, w, h = cv2.boundingRect(cnt)
 
-                rect = cv2.minAreaRect(contours[0])
-                (x,y),(w,h), a = rect
+                    rects.append([x, y, w, h])
+                    rects.append([x, y, w, h])
 
-                positions.append([(x,y),(w,h)])
+            rects, _ = cv2.groupRectangles(rects, 1, 1.5)
 
-                box = cv2.boxPoints(rect)
-                box = np.int0(box)
+            for index, r in enumerate(rects, 1):
+                p1 = (r[0], r[1])
+                p2 = (r[0]+r[2], r[1]+r[3])
 
-                base_screen = cv2.drawContours(base_screen,[box],0,(0,0,255),2)
+                positions.append(p1)
 
-                cv2.putText(base_screen,f'Player {index}',(int(x+15),int(y-15)), cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2,cv2.LINE_AA)
+                cv2.rectangle(base_screen, p1,p2, (0,0,255), 2)
+
+                cv2.putText(base_screen,f'Player {index}',(p1[0],p1[1]),
+                            cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2,cv2.LINE_AA)
 
             return base_screen, positions
+
         except IndexError:
             logging.error('No contours found')
             return base_screen, []
+
+    def get_contour_precedence(self, contour, cols):
+        tolerance_factor = 500
+        origin = cv2.boundingRect(contour)
+        return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
 
 
 if __name__ == '__main__':
