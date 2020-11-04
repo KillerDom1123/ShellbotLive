@@ -13,16 +13,23 @@ class ShellbotLive():
     lower_green = np.array([50, 0, 0])
     upper_green = np.array([65, 255, 255])
 
-    lower_red = np.array([0, 0, 0])
-    upper_red = np.array([10, 255, 255])
+    lower_red = np.array([100, 50, 50])
+    upper_red = np.array([150, 255, 255])
 
     def __init__(self):
         while True:
             screen = np.array(ImageGrab.grab(bbox = (0,40,1920,927)))
 
             player_filtered_screen = self.colour_filter(screen, self.lower_green, self.upper_green)
-            player_filtered_screen = self.threshold(player_filtered_screen)
-            player_filtered_screen, player_position = self.get_position(screen, player_filtered_screen)
+            player_filtered_screen = self.threshold(player_filtered_screen, 80, 85)
+            player_filtered_screen, player_position = self.get_position(screen, player_filtered_screen, 'Player', colour=(0, 255, 0))
+
+            enemy_filtered_screen = self.colour_filter(screen, self.lower_red, self.upper_red)
+            enemy_filtered_screen = self.threshold(enemy_filtered_screen, 25, 50)
+            enemy_filtered_screen, enemy_positions = self.get_position(screen, enemy_filtered_screen, 'Enemy')
+            cv2.imshow('Red', enemy_filtered_screen)
+
+
 
             if len(player_position) == 0:
                 logging.warning('Player not found')
@@ -39,17 +46,17 @@ class ShellbotLive():
 
         return res
 
-    def threshold(self, screen):
+    def threshold(self, screen, thresh_lower, thresh_upper):
         gray_screen = cv2.cvtColor(screen, cv2.COLOR_BGR2GRAY)
         blurred_screen = cv2.GaussianBlur(gray_screen, (11, 11), 0)
 
-        thresh_screen = cv2.threshold(blurred_screen, 100, 255, cv2.THRESH_BINARY)[1]
+        thresh_screen = cv2.threshold(blurred_screen, thresh_lower, thresh_upper, cv2.THRESH_BINARY)[1]
         thresh_screen = cv2.erode(thresh_screen, None, iterations=2)
         thresh_screen = cv2.dilate(thresh_screen, None, iterations=4)
 
         return thresh_screen
 
-    def get_position(self, base_screen, thresh_screen):
+    def get_position(self, base_screen, thresh_screen, entity_type, colour=(0,0,255)):
         try:
             contours,_ = cv2.findContours(thresh_screen, 1, 1)
 
@@ -74,9 +81,9 @@ class ShellbotLive():
 
                 positions.append(p1)
 
-                cv2.rectangle(base_screen, p1,p2, (0,0,255), 2)
+                cv2.rectangle(base_screen, p1,p2, colour, 2)
 
-                cv2.putText(base_screen,f'Player {index}',(p1[0],p1[1]),
+                cv2.putText(base_screen,f'{entity_type} {index}',(p1[0],p1[1]),
                             cv2.FONT_HERSHEY_SIMPLEX, 1,(255,255,255),2,cv2.LINE_AA)
 
             return base_screen, positions
