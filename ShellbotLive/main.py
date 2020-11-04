@@ -93,7 +93,7 @@ class ShellbotLive():
             return base_screen, []
 
     def get_contour_precedence(self, contour, cols):
-        tolerance_factor = 500
+        tolerance_factor = 5000
         origin = cv2.boundingRect(contour)
         return ((origin[1] // tolerance_factor) * tolerance_factor) * cols + origin[0]
 
