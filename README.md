@@ -1,5 +1,5 @@
 # ShellbotLive
-A Shellshot Live aim 'assist' made with Python and OpenCV
+A Shellshock Live aim 'assist' made with Python and OpenCV
 
 **TODO:**
 - [x] Grab the screen of the game
