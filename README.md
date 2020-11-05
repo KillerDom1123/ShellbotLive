@@ -18,3 +18,4 @@ A Shellshock Live aim 'assist' made with Python and OpenCV
 - [ ] Add a tracer for the current aim
 - [ ] Potentially add a tracer for the angle to shoot at
 - [ ] Calculate the power needed at a certain angle
+- [ ] Be able to adjust angle for wing
