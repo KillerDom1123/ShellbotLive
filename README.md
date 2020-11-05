@@ -1,4 +1,4 @@
-# ShellbotLive
+# Shellshot-Live
 A Shellshock Live aim 'assist' made with Python and OpenCV
 
 **TODO:**
