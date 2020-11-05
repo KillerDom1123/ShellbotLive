@@ -15,3 +15,6 @@ A Shellshock Live aim 'assist' made with Python and OpenCV
 **For Conisderation:**
 - [ ] Be able to automatically adjust angle
 - [ ] Implement the ability (within the config process) to select player and enemy colour?
+- [ ] Add a tracer for the current aim
+- [ ] Potentially add a tracer for the angle to shoot at
+- [ ] Calculate the power needed at a certain angle
