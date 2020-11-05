@@ -9,7 +9,7 @@ import math
 
 logging.basicConfig(level=logging.DEBUG)
 
-class ShellbotLive():
+class ShellshotLive():
     """Main class
     """
     lower_green = np.array([50, 0, 0])
@@ -123,4 +123,4 @@ class ShellbotLive():
 
 
 if __name__ == '__main__':
-    ShellbotLive()
+    ShellshotLive()
